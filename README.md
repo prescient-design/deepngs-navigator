@@ -28,12 +28,12 @@ conda env create -f environment.yml
 python deepngs_pipeline.py --fileName 'path to your input file' --desc 'test_deepngs'
  ```
 
-**License**:
+## License
+
 This software is licensed under a modified Apache License, Version 2.0 (the "License"), specifically a Genentech Non-Commercial Software License. You may not use these files except in compliance with the License. You may obtain a copy of the License.
 
 Unless required by applicable law or agreed upon in writing, software distributed under the License is provided on an "as is" basis, without warranties or conditions of any kind, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-**Citation**:
+## Citation
 If you use this code and/or model, please cite:
-
 @article{}
