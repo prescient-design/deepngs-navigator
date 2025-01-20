@@ -79,7 +79,7 @@ class LeidenClustering:
         leiden_labels = partition.membership
         
         df_['cluster_id_leiden']=leiden_labels
-        self.df=pd.merge(self.df,df_[['seq','cluster_id_leiden']],on='seq',how='left')
+        self.df=pd.merge(self.df,df_[['AA','cluster_id_leiden']],on='AA',how='left')
         return self.df
         
     

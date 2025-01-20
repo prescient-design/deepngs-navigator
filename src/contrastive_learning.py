@@ -272,7 +272,7 @@ def my_collate(batch):
         ids = np.asarray(i1 + i2)
         mask = np.stack([np.in1d(ids, n, invert=True).astype(float) for n in ns])
         mask[ii, ii] = 0. # remove self
-        mask[ii, bs + ii] = 0. # this we need for normalization
+        mask[ii, bs + ii] = 1. # this we need for normalization
         mask = torch.from_numpy(mask)
         mask.requires_grad_(False)
         # -- second mask for positive forces
@@ -346,11 +346,24 @@ def train_model(seqs, neighbors, args_dict,
 
     args_dict["stage"] = stage
 
-    # set up model
+    # Set up model
     if model_ckpt is not None:
-        model = ContrastiveModel.load_from_checkpoint(
-                    model_ckpt,strict=False,
-                    **args_dict)
+        # Load the pretrained_checkpoint
+        pretrained_checkpoint = torch.load(model_ckpt)
+        pretrained_state_dict = pretrained_checkpoint["state_dict"]
+
+       
+        # Load the adjusted state dictionary into the ContrastiveModel
+        model = ContrastiveModel(
+             **{**args_dict, "model_pretrained_": None} 
+        )
+
+        missing_keys, unexpected_keys = model.load_state_dict(pretrained_state_dict, strict=False)
+
+        # Log mismatched keys
+        print("Missing keys:", missing_keys)
+        print("Unexpected keys:", unexpected_keys)
+
     else:
         model = ContrastiveModel(**args_dict)
 
@@ -388,7 +401,7 @@ def train_model(seqs, neighbors, args_dict,
                 log_every_n_steps=1,
                 accelerator='gpu',
                 devices=num_devices, 
-                strategy=pl.strategies.ddp.DDPStrategy(find_unused_parameters=True) if num_devices > 1 else None,
+                strategy=pl.strategies.ddp.DDPStrategy(find_unused_parameters=True) if num_devices > 1 else 'auto',
                 sync_batchnorm=False,
                 precision='32',
                 enable_model_summary=True,

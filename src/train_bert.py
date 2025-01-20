@@ -247,7 +247,7 @@ def train_bert_main(
                 devices=num_devices,
                 strategy=strategies.ddp.DDPStrategy(
                     find_unused_parameters=True
-                ) if num_devices > 1 else None,
+                ) if num_devices > 1 else 'auto',
                 sync_batchnorm=False,
                 precision=32,
                 enable_model_summary=True,
@@ -262,10 +262,21 @@ def train_bert_main(
         # train
         trainer.fit(model, dm)
 
-        # save best
+        # Save best checkpoint path
         best_path = trainer.checkpoint_callback.best_model_path
-        np.savez(f"{SAVEDIR}/best_model_path.npz", paths=[best_path])
-        print(best_path)
+        print(f"Best model checkpoint saved at: {best_path}")
+
+        # Load the state dictionary from the best checkpoint
+        state_dict = torch.load(best_path)["state_dict"]
+
+        # Save the state dictionary and configuration separately
+        torch.save(
+            {
+                "state_dict": state_dict,
+                "config": model.model.config.to_dict(),  # Save BERT configuration
+            },
+            f"{SAVEDIR}/best_model_with_config.pth"
+        )
         # test
         trainer.test(model, datamodule=dm)
 

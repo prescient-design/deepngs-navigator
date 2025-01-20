@@ -1,0 +1,4 @@
+outputs/
+pretrained_models/
+wandb/
+src/_pycache__/

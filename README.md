@@ -25,8 +25,9 @@ conda env create -f environment.yml
 3. **Execution**: Submit your NGS analysis job using the provided command. Adjust input parameters described in deepngs_pipeline.py as necessary for your specific dataset and requirements:
 
 ```bash
-python deepngs_pipeline.py --fileName 'path to your input file' --desc 'test_deepngs'
- ```
+example:
+python deepngs_pipeline.py --fileName 'data/test_dataset_hc_5k.csv.gz' --desc 'test' --wandb_entity 'your_wandb_entity' 
+```
 
 ## License
 

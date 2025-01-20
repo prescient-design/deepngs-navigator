@@ -464,22 +464,52 @@ class Main:
                 )
         time.sleep(1.5)
 
-        # ---- load the trained model and calculate embeddings ----#
-        model_ckpt = ckpt3
-        model = ContrastiveModel.load_from_checkpoint(
-                        model_ckpt,
-                        **args_dict)
+       # Load the model from the checkpoint
+        pretrained_checkpoint = torch.load(ckpt3)
+        pretrained_state_dict = pretrained_checkpoint["state_dict"]
+
+       
+        # Load the adjusted state dictionary into the ContrastiveModel
+        model = ContrastiveModel(
+             **{**args_dict, "model_pretrained_": ckpt3} 
+        )
+
+        missing_keys, unexpected_keys = model.load_state_dict(pretrained_state_dict, strict=False)
+        
+        # Log mismatched keys
+        print("Missing keys:", missing_keys)
+        print("Unexpected keys:", unexpected_keys)
+
+        # Set the model to evaluation mode
         model.eval()
+
+        # Move the model to the appropriate device
         model = model.to(devices[0])
-        torch.save(model.state_dict(), f'{store_dir}/{name}.ckpt')
-        with torch.no_grad():
-            ess = []
-            for st in range(0, len(seqs), bs):
-                e = min(st + bs, len(seqs))
-                inputs1, inputs2, mask, mask_repulsion  = batch_converter_CL(seqs[st:e])
-                inputs1 = {k: v.to(devices[0]) if type(v) is torch.Tensor else v for k, v in inputs1.items()}
-                es = model(inputs1).cpu()
-                ess.append(es)
+
+        # Save the model in a standalone format (weights + configuration)
+        torch.save(
+            {
+                "state_dict": model.state_dict(),  # Save the model's weights
+                "config": args_dict,              # Save the model's configuration for reproducibility
+            },
+            f"{store_dir}/{name}.pth"  # Save as a .pth file
+        )
+
+        # Calculate embeddings
+        with torch.no_grad():  # Disable gradient tracking for inference
+            ess = []  # List to store embeddings
+            for st in range(0, len(seqs), bs):  # Process sequences in batches
+                e = min(st + bs, len(seqs))  # Determine batch end index
+                inputs1, inputs2, mask, mask_repulsion = batch_converter_CL(seqs[st:e])
+
+                # Move inputs to the correct device
+                inputs1 = {k: v.to(devices[0]) if isinstance(v, torch.Tensor) else v for k, v in inputs1.items()}
+
+                # Pass inputs through the model to get embeddings
+                es = model(inputs1).cpu()  # Move embeddings to CPU
+                ess.append(es.numpy())  # Convert to NumPy and append
+
+            # Concatenate all batch embeddings into a single array
             es = np.concatenate(ess)
 
         # return embeddings and number of neighbors
