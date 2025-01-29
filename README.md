@@ -35,6 +35,16 @@ This software is licensed under a modified Apache License, Version 2.0 (the "Lic
 
 Unless required by applicable law or agreed upon in writing, software distributed under the License is provided on an "as is" basis, without warranties or conditions of any kind, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-## Citation
-If you use this code and/or model, please cite:
-@article{}
+### Citation
+If you use this code, please cite:
+```
+@article {MohammadiPeyhani2025.01.27.634805,
+   title = {deepNGS Navigator: Exploring antibody NGS datasets using deep contrastive learning},
+	author = {MohammadiPeyhani, Homa and Lee, Edith and Bonneau, Richard and Gligorijevic, Vladimir and Lee, Jae Hyeon},
+	year = {2025},
+	doi = {10.1101/2025.01.27.634805},
+	URL = {https://www.biorxiv.org/content/early/2025/01/28/2025.01.27.634805},
+	eprint = {https://www.biorxiv.org/content/early/2025/01/28/2025.01.27.634805.full.pdf},
+	journal = {bioRxiv}
+}
+```
